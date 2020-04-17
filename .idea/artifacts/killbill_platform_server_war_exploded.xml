@@ -117,7 +117,7 @@
           <element id="library" level="project" name="Maven: org.kill-bill.commons:killbill-metrics:0.23.7" />
           <element id="library" level="project" name="Maven: org.slf4j:jul-to-slf4j:1.7.25" />
           <element id="library" level="project" name="Maven: org.kill-bill.commons:mssql:0.23.8-SNAPSHOT" />
-          <element id="library" level="project" name="Maven: com.microsoft.sqlserver:mssql-jdbc:8.2.1.jre11" />
+          <element id="library" level="project" name="Maven: com.microsoft.sqlserver:mssql-jdbc:8.2.1.jre8" />
           <element id="library" level="project" name="Maven: com.microsoft.sqlserver:sqljdbc42:4.2" />
           <element id="library" level="project" name="Maven: org.antlr:antlr4-runtime:4.7.2" />
           <element id="library" level="project" name="Maven: org.zapodot:embedded-db-junit:2.0.0" />

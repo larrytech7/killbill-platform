@@ -1,9 +1,9 @@
--- override the last_insert_id method to return the @@IDENTITY value as intended for SQL server
-CREATE OR ALTER FUNCTION last_insert_id()
+-- override the now() method to return the getdate value as required for SQL server
+CREATE OR ALTER FUNCTION now()
     RETURNS INT
-    AS
-    BEGIN
-        DECLARE @id INT;
-        SELECT @id = @@IDENTITY;
-        RETURN @id;
-    END;
+        AS
+        BEGIN
+            DECLARE @time VARCHAR(100);
+            SELECT @time = getdate();
+            RETURN @time;
+        END

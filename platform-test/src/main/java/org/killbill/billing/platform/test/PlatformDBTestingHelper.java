@@ -27,6 +27,7 @@ import javax.sql.DataSource;
 
 import org.killbill.billing.platform.jndi.ReferenceableDataSourceSpy;
 import org.killbill.commons.embeddeddb.EmbeddedDB;
+import org.killbill.commons.embeddeddb.EmbeddedDB.DBEngine;
 import org.killbill.commons.embeddeddb.GenericStandaloneDB;
 import org.killbill.commons.embeddeddb.h2.H2EmbeddedDB;
 import org.killbill.commons.embeddeddb.mssql.MsSQLEmbeddedDB;
@@ -80,12 +81,12 @@ public class PlatformDBTestingHelper {
                 log.info("Using PostgreSQL as the embedded database");
                 instance = new PostgreSQLEmbeddedDB();
             }
-        } else if("true".equals(System.getProperty(TEST_DB_PROPERTY_PREFIX + "mssql"))){
-            if(isUsingLocalInstance()){
+        } else if("true".equals(System.getProperty(TEST_DB_PROPERTY_PREFIX + "mssql", "true"))){
+            if(!isUsingLocalInstance()){
                 log.info("Using SQL Server local database");
-                final String databaseName = System.getProperty(TEST_DB_PROPERTY_PREFIX + "localDb.database", "killbill");
+                final String databaseName = System.getProperty(TEST_DB_PROPERTY_PREFIX + "localDb.database", "TestDB");
                 final String username = System.getProperty(TEST_DB_PROPERTY_PREFIX + "localDb.username", "sa");
-                final String password = System.getProperty(TEST_DB_PROPERTY_PREFIX + "localDb.password", "password");
+                final String password = System.getProperty(TEST_DB_PROPERTY_PREFIX + "localDb.password", "creationfox7*");
                 instance = new MsSQLStandaloneDB(databaseName, username, password);
             }else{
                 log.info("Using SQL Server as embedded database. Well, still runs on local instance though, given no form of embedded db support is available for SQL server");
@@ -144,6 +145,12 @@ public class PlatformDBTestingHelper {
         try {
             final String databaseSpecificDDL = streamToString(Resources.getResource(resourcesBase + "/" + "ddl-" + instance.getDBEngine().name().toLowerCase() + ".sql").openStream());
             instance.executeScript(databaseSpecificDDL);
+            if(instance.getDBEngine() == DBEngine.MSSQL){
+                //there are additional startup scripts to execute for this engine type
+                for(String script : new String[]{"create-serial", "create-now", "update-serial", "trigger-serial"}){
+                    instance.executeScript(streamToString(Resources.getResource(resourcesBase + "/" + "ddl-" + instance.getDBEngine().name().toLowerCase() + "-" + script + ".sql").openStream()));
+                }
+            }
         } catch (final IllegalArgumentException e) {
             // No engine-specific DDL
         }
@@ -165,6 +172,11 @@ public class PlatformDBTestingHelper {
                 } finally {
                     postgreSQLDBConnection.stop();
                 }
+                break;
+            case MSSQL:
+                final GenericStandaloneDB msSQLDBConnection = new MsSQLStandaloneDB(instance.getDatabaseName(), "sa", "creationfox7*", String.format("jdbc:sqlserver://localhost:1433;databaseName=%s;user=%s;password=%s", instance.getDatabaseName(),instance.getUsername(), instance.getPassword()));
+                msSQLDBConnection.initialize();
+                msSQLDBConnection.start();
                 break;
             default:
                 break;

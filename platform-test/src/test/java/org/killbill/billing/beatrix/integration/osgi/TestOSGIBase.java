@@ -18,6 +18,9 @@
 
 package org.killbill.billing.beatrix.integration.osgi;
 
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
@@ -94,6 +97,10 @@ public class TestOSGIBase {
     public TestOSGIBase() {
         try {
             configSource = new TestKillbillConfigSource("/beatrix.properties", PlatformDBTestingHelper.class);
+            Properties props = configSource.getProperties();
+            for (final String s : props.stringPropertyNames()) {
+                //System.out.println("Prop : " + s);
+            }
         } catch (final Exception e) {
             final AssertionError assertionError = new AssertionError("Initialization error");
             assertionError.initCause(e);
