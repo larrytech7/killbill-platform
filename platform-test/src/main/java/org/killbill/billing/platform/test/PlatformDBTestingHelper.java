@@ -177,6 +177,11 @@ public class PlatformDBTestingHelper {
                 final GenericStandaloneDB msSQLDBConnection = new MsSQLStandaloneDB(instance.getDatabaseName(), "sa", "creationfox7*", String.format("jdbc:sqlserver://localhost:1433;databaseName=%s;user=%s;password=%s", instance.getDatabaseName(),instance.getUsername(), instance.getPassword()));
                 msSQLDBConnection.initialize();
                 msSQLDBConnection.start();
+                try{
+                    msSQLDBConnection.executeScript(String.format("USE %s; EXEC sp_changedbowner %s;", instance.getDatabaseName(), instance.getUsername()));
+                }finally {
+                    msSQLDBConnection.stop();
+                }
                 break;
             default:
                 break;
